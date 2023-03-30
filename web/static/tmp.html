@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>City Selector</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>City Selector</h1>
+    <form id="city-form">
+      <div class="form-group">
+        <label for="country">Country:</label>
+        <select id="country" name="country">
+          <option value="">-- Select a country --</option>
+          <option value="usa">USA</option>
+          <option value="canada">Canada</option>
+          <option value="mexico">Mexico</option>
+        </select>
+        <input type="checkbox" id="default-country" name="default-country" value="usa"> Use default value (USA)
+      </div>
+
+      <div class="form-group">
+        <label for="population">Population:</label>
+        <input type="number" id="population" name="population">
+        <input type="checkbox" id="default-population" name="default-population" value="1000000"> Use default value (1,000,000)
+      </div>
+
+      <div class="form-group">
+        <label for="area">Area (km²):</label>
+        <input type="range" id="area" name="area" min="0" max="1000000" step="1000">
+        <input type="checkbox" id="default-area" name="default-area" value="50000"> Use default value (50,000)
+      </div>
+
+      <div class="form-group">
+        <label for="elevation">Elevation (m):</label>
+        <input type="range" id="elevation" name="elevation" min="-200" max="9000" step="100">
+        <input type="checkbox" id="default-elevation" name="default-elevation" value="0"> Use default value (0)
+      </div>
+
+      <div class="form-group">
+        <label for="climate">Climate:</label>
+        <select id="climate" name="climate">
+          <option value="">-- Select a climate --</option>
+          <option value="tropical">Tropical</option>
+          <option value="temperate">Temperate</option>
+          <option value="arid">Arid</option>
+        </select>
+        <input type="checkbox" id="default-climate" name="default-climate" value="tropical"> Use default value (Tropical)
+      </div>
+
+      <div class="form-group">
+        <label for="crime-rate">Crime Rate:</label>
+        <input type="number" id="crime-rate" name="crime-rate">
+        <input type="checkbox" id="default-crime-rate" name="default-crime-rate" value="50"> Use default value (50)
+      </div>
+
+      <div class="form-group">
+        <label for="cost-of-living">Cost of Living Index:</label>
+        <input type="number" id="cost-of-living" name="cost-of-living">
+	<input type="checkbox" id="cost-of-living" name="default-cost-of-living" value="50"> Use default value (50)
+      </div>
+
+      <button type="submit">Find Cities</button>
+    </form>
+
+    <div id="city-list"></div>
+  </div>
+</body>
+
+</html>
+
