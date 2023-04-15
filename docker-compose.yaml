@@ -1,92 +1,95 @@
 version: "3"
 
 services:
-  web:
-    build: ./web
-    ports:
-      - "80:80"
-    depends_on:
-      - city_opt_api
-      - data_access_api
-    networks:
-      - frontend
+  # web:
+    # build: ./web
+    # ports:
+      # - "80:80"
+    # depends_on:
+      # - city_opt_api
+      # - data_access_api
+    # networks:
+      # - frontend
 
-  optimization_facade_api:
-    build: ./optimization_facade_api
-    ports:
-      - "8090:8090"
-    depends_on:
-      - postgres
-      - rabbitmq
-      - redis
-    networks:
-      - backend
+  # optimization_facade_api:
+    # build: ./optimization_facade_api
+    # ports:
+      # - "8090:8090"
+    # depends_on:
+      # - postgres
+      # - rabbitmq
+      # - redis
+    # networks:
+      # - backend
   
-  data_access_api:
-    build: ./data_access_api
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    networks:
-      - backend
+  # data_access_api:
+    # build: ./data_access_api
+    # ports:
+      # - "8080:8080"
+    # depends_on:
+      # - postgres
+    # # networks:
+      # # - backend
 
   postgres:
     image: postgres:14
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: example
-      POSTGRES_DB: example
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-    depends_on:
-      - redis
-    networks:
-      - backend
+      - ./volumes/postgres_data:/var/lib/postgresql/data
+      - ./database_definition/db_init.sql:/docker-entrypoint-initdb.d/db_init.sql
+    ports:
+        - '5438:5432'
+    # depends_on:
+      # - redis
+    # networks:
+      # - backend
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    environment:
-      RABBITMQ_DEFAULT_USER: rabbitmq
-      RABBITMQ_DEFAULT_PASS: rabbitmq
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
-    networks:
-      - backend
+  # rabbitmq:
+    # image: rabbitmq:3-management
+    # environment:
+      # RABBITMQ_DEFAULT_USER: rabbitmq
+      # RABBITMQ_DEFAULT_PASS: rabbitmq
+    # volumes:
+      # - rabbitmq-data:/var/lib/rabbitmq
+    # networks:
+      # - backend
 
-  redis:
-    image: redis:latest
-    volumes:
-      - redis_data:/data
-    networks:
-      - backend
+  # redis:
+    # image: redis:latest
+    # volumes:
+      # - redis_data:/data
+    # networks:
+      # - backend
 
-  city_optimization_workers:
-    build: ./optimization_workers/city_optimization
-    depends_on:
-      - rabbitmq
-      - redis
-    scale:
-      workers: 3
-    networks:
-      - backend
+  # city_optimization_workers:
+    # build: ./optimization_workers/city_optimization
+    # depends_on:
+      # - rabbitmq
+      # - redis
+    # deploy:
+        # replicas: 3
+    # networks:
+      # - backend
 
-  business_optimization_workers:
-    build: ./optimization_workers/business_optimization
-    depends_on:
-      - rabbitmq
-      - -redis
-    scale:
-      workers: 3
-    networks:
-      - backend
+  # business_optimization_workers:
+    # build: ./optimization_workers/business_optimization
+    # depends_on:
+      # - rabbitmq
+      # - redis
+    # deploy:
+        # replicas: 3
+    # networks:
+      # - backend
 
-  data_loader:
-    build: ./data_loader
-    depends_on:
-      - postgres
-    networks:
-      - backend
+  # data_loader:
+    # build: ./data_loader
+    # depends_on:
+      # - postgres
+    # networks:
+      # - backend
 
 #volumes:
 #  postgres-data:
