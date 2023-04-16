@@ -1,49 +1,15 @@
-FROM python:3.9.1
+FROM python:3.10-slim
 
-RUN apt-get install curl wget
-RUN pip install pandas
+WORKDIR /code
 
-# VERSIONS
-ENV SPARK_VERSION=3.3.2 \
-HADOOP_VERSION=3 \
-JAVA_VERSION=11
+RUN apt-get update \
+    && apt-get install gcc -y \
+    && apt-get install -y git \
+    && apt install -y libpq-dev \
+    && apt-get clean
 
-# SET JAVA ENV VARIABLES
-ENV JAVA_HOME="/home/jdk-${JAVA_VERSION}.0.2"
-ENV PATH="${JAVA_HOME}/bin/:${PATH}"
+COPY ./requirements.txt /code/requirements.txt
+RUN --mount=type=ssh MAKEFLAGS="-j$(nproc)" pip install -r /code/requirements.txt \
+    && rm -rf /root/.cache/pip
 
-# DOWNLOAD JAVA 11 AND INSTALL
-RUN DOWNLOAD_URL="https://download.java.net/java/GA/jdk${JAVA_VERSION}/9/GPL/openjdk-${JAVA_VERSION}.0.2_linux-x64_bin.tar.gz" \
-    && TMP_DIR="$(mktemp -d)" \
-    && curl -fL "${DOWNLOAD_URL}" --output "${TMP_DIR}/openjdk-${JAVA_VERSION}.0.2_linux-x64_bin.tar.gz" \
-    && mkdir -p "${JAVA_HOME}" \
-    && tar xzf "${TMP_DIR}/openjdk-${JAVA_VERSION}.0.2_linux-x64_bin.tar.gz" -C "${JAVA_HOME}" --strip-components=1 \
-    && rm -rf "${TMP_DIR}" \
-    && java --version
-
-# DOWNLOAD SPARK AND INSTALL
-RUN DOWNLOAD_URL_SPARK="https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" \
-    && wget --no-verbose -O apache-spark.tgz  "${DOWNLOAD_URL_SPARK}"\
-    && mkdir -p /home/spark \
-    && tar -xf apache-spark.tgz -C /home/spark --strip-components=1 \
-    && rm apache-spark.tgz
-
-# SET SPARK ENV VARIABLES
-ENV SPARK_HOME="/home/spark"
-ENV PATH="${SPARK_HOME}/bin/:${PATH}"
-
-
-ENV SPARK_MASTER_PORT 7077
-ENV SPARK_MASTER_WEBUI_PORT 8080
-ENV SPARK_MASTER_LOG /spark/logs
-
-EXPOSE 8080
-
-# SET PYSPARK VARIABLES
-ENV PYTHONPATH="${SPARK_HOME}/python/:$PYTHONPATH"
-ENV PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.9.5-src.zip:$PYTHONPATH"
-
-# Let's change to  "$NB_USER" command so the image runs as a non root user by default
-#USER $NB_UID
-
-ENTRYPOINT $SPARK_HOME/bin/spark-class org.apache.spark.deploy.master.Master
+CMD [ "python", "./base_uploader.py"]
