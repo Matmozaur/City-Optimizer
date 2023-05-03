@@ -2,6 +2,7 @@ import requests
 import os
 
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, create_engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 POSTGRES_USER = os.environ.get('POSTGRES_USER')
@@ -30,16 +31,17 @@ class Country(Base):
 
     language = relationship('Language', back_populates='countries')
 
+
 def populate_language_and_country():
     engine = create_engine(f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@postgres_db:5432/{POSTGRES_DB}')
     Session = sessionmaker(bind=engine)
 
     response = requests.get('https://restcountries.com/v3.1/region/europe')
     session = Session()
-    languages = [Language(language_name=l) for l in set.union(*[set(r['languages'].values()) for r in response.json()])]
+    languages = [Language(language_name=lang) for lang in set.union(*[set(r['languages'].values()) for r in response.json()])]
     session.bulk_save_objects(languages)
     session.commit()
-    languages_dict = {l.language_name: l.language_id for l in session.query(Language).all()}
+    languages_dict = {lang.language_name: lang.language_id for lang in session.query(Language).all()}
 
     countries = [Country(country_name=c['name']['common'],
                          country_code=c['cca2'],
@@ -51,8 +53,9 @@ def populate_language_and_country():
     session.commit()
     session.close()
 
+
 if __name__ == '__main__':
     try:
         populate_language_and_country()
-    except sqlalchemy.exc.IntegrityError:
+    except IntegrityError:
         pass
