@@ -1,4 +1,17 @@
-FROM ubuntu:latest
-LABEL authors="matmozaur"
+FROM python:3.10-slim
 
-ENTRYPOINT ["top", "-b"]
+WORKDIR /code
+
+RUN apt-get update \
+    && apt-get install gcc -y \
+    && apt-get install -y git \
+    && apt install -y libpq-dev \
+    && apt-get clean
+
+COPY ./requirements.txt /code/requirements.txt
+RUN --mount=type=ssh MAKEFLAGS="-j$(nproc)" pip install -r /code/requirements.txt \
+    && rm -rf /root/.cache/pip
+
+COPY ./base_loader.py /code/base_loader.py
+
+CMD [ "python", "base_loader.py"]
